@@ -88,7 +88,7 @@ long __stdcall Game::D3D::hkEndScene(LPDIRECT3DDEVICE9 pDevice)
 	{
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
-			if (EntityList[i] != NULL)
+			if (EntityList[i] != NULL && EntityList[i] != LocalPlayer)
 			{
 
 				iVec2 EnemyPos2D, EnemyHeadPos2D;
