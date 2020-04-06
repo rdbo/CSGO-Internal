@@ -9,14 +9,19 @@ bool esp_snapline;
 int esp_snapline_thickness = 1;
 int esp_snapline_color_enemy[4] = { 255, 125, 0, 255 };
 int esp_snapline_color_team[4] = { 0, 125, 255, 255 };
-float GlowEnemyColor[4] = { 1.f, 0.f, 0.f, 1.f };
-float GlowTeamColor[4] = { 0.f, 0.f, 1.f, 1.f };
+bool esp_box;
+int esp_box_thickness = 1;
+int esp_box_color_enemy[4] = { 255, 0, 0, 255 };
+int esp_box_color_team[4] = { 0, 0, 255, 255 };
+float GlowEnemyColor[4] = { 1.f, 1.f, 0.f, 1.f };
+float GlowTeamColor[4] = { 0.f, 0.5f, 1.f, 1.f };
 
 //Variables
 namespace Game
 {
 	namespace D3D
 	{
+		ID3DXLine* dxLine;
 		EndScene oEndScene;
 		void* vtable[119];
 	}
@@ -47,6 +52,8 @@ void Bunnyhop();
 void RadarHack(Player* ent);
 void GlowHack(Player* ent);
 void EntityListLoop();
+void DrawEspBox2D(iVec2 top, iVec2 bot, int thickness, D3DCOLOR color, LPDIRECT3DDEVICE9 pDevice);
+flVec3 GetBonePos(Player* ent, int bone);
 
 DWORD WINAPI Game::HackInit(LPVOID lpReserved)
 {
@@ -151,64 +158,59 @@ void GlowHack(Player* ent)
 	}
 }
 
-void ESP_SnapLine(Player* ent, Window wnd, LPDIRECT3DDEVICE9 pDevice)
+void ESP_SnapLine(Player* ent, iVec2 EnemyPos2D, Window wnd, LPDIRECT3DDEVICE9 pDevice)
 {
 	if (esp_snapline && !ent->Dormant && ent->Health > 0 && ent->Team != NULL)
 	{
 		int wWidth = wnd.GetWidth();
 		int wHeight = wnd.GetHeight();
-		iVec2 EnemyPos2D;
-		if (Game::D3D::WorldToScreen(ent->Position, EnemyPos2D, Game::vMatrix.Matrix, wWidth, wHeight))
+		iVec2 screenCoords = { wWidth / 2, wHeight };
+
+		if (ent->Team == Game::LocalPlayer->Team)
 		{
-			iVec2 screenCoords = { wWidth / 2, wHeight };
+			Game::D3D::DrawLine(screenCoords, EnemyPos2D, esp_snapline_thickness, D3DCOLOR_RGBA(esp_snapline_color_team[0], esp_snapline_color_team[1], esp_snapline_color_team[2], esp_snapline_color_team[3]), pDevice);
+		}
 
-			if (ent->Team == Game::LocalPlayer->Team)
-			{
-				Game::D3D::DrawLine(screenCoords, EnemyPos2D, esp_snapline_thickness, D3DCOLOR_RGBA(esp_snapline_color_team[0], esp_snapline_color_team[1], esp_snapline_color_team[2], esp_snapline_color_team[3]), pDevice);
-			}
-
-			if (ent->Team != Game::LocalPlayer->Team)
-			{
-				Game::D3D::DrawLine(screenCoords, EnemyPos2D, esp_snapline_thickness, D3DCOLOR_RGBA(esp_snapline_color_enemy[0], esp_snapline_color_enemy[1], esp_snapline_color_enemy[2], esp_snapline_color_enemy[3]), pDevice);
-			}
+		if (ent->Team != Game::LocalPlayer->Team)
+		{
+			Game::D3D::DrawLine(screenCoords, EnemyPos2D, esp_snapline_thickness, D3DCOLOR_RGBA(esp_snapline_color_enemy[0], esp_snapline_color_enemy[1], esp_snapline_color_enemy[2], esp_snapline_color_enemy[3]), pDevice);
 		}
 	}
 }
 
-void Game::D3D::DrawLine(iVec2 src, iVec2 dst, int thickness, D3DCOLOR color, LPDIRECT3DDEVICE9 pDevice)
+void ESP_Box(Player* ent, iVec2 EnemyPos2D, iVec2 EnemyHeadPos2D, LPDIRECT3DDEVICE9 pDevice)
 {
-	ID3DXLine* LineL;
-	D3DXCreateLine(pDevice, &LineL);
+	if (esp_box && ent != Game::LocalPlayer && !ent->Dormant && ent->Health > 0 && ent->Team != NULL)
+	{
+		if (ent->Team == Game::LocalPlayer->Team)
+		{
+			DrawEspBox2D(EnemyPos2D, EnemyHeadPos2D, esp_box_thickness, D3DCOLOR_RGBA(esp_box_color_team[0], esp_box_color_team[1], esp_box_color_team[2], esp_box_color_team[3]), pDevice);
+		}
 
-	D3DXVECTOR2 Line[2];
-	Line[0] = D3DXVECTOR2(src.x, src.y);
-	Line[1] = D3DXVECTOR2(dst.x, dst.y);
-	LineL->SetWidth(thickness);
-	LineL->Begin();
-	LineL->Draw(Line, 2, color);
-	LineL->End();
-	LineL->Release();
+		if (ent->Team != Game::LocalPlayer->Team)
+		{
+			DrawEspBox2D(EnemyPos2D, EnemyHeadPos2D, esp_box_thickness, D3DCOLOR_RGBA(esp_box_color_enemy[0], esp_box_color_enemy[1], esp_box_color_enemy[2], esp_box_color_enemy[3]), pDevice);
+		}
+	}
 }
 
-bool Game::D3D::WorldToScreen(flVec3 pos, iVec2& screen, float viewMatrix[4][4], int windowWidth, int windowHeight)
+void DrawEspBox2D(iVec2 top, iVec2 bot, int thickness, D3DCOLOR color, LPDIRECT3DDEVICE9 pDevice)
 {
-	flVec4 clipCoords;
-	clipCoords.x = pos.x * viewMatrix[0][0] + pos.y * viewMatrix[0][1] + pos.z * viewMatrix[0][2] + viewMatrix[0][3];
-	clipCoords.y = pos.x * viewMatrix[1][0] + pos.y * viewMatrix[1][1] + pos.z * viewMatrix[1][2] + viewMatrix[1][3];
-	clipCoords.z = pos.x * viewMatrix[2][0] + pos.y * viewMatrix[2][1] + pos.z * viewMatrix[2][2] + viewMatrix[2][3];
-	clipCoords.w = pos.x * viewMatrix[3][0] + pos.y * viewMatrix[3][1] + pos.z * viewMatrix[3][2] + viewMatrix[3][3];
+	int height = ABS(top.y - bot.y);
+	iVec2 tl, tr;
+	tl.x = top.x - height / 4;
+	tr.x = top.x + height / 4;
+	tl.y = tr.y = top.y;
 
-	if (clipCoords.w < 0.1f)
-		return false;
+	iVec2 bl, br;
+	bl.x = bot.x - height / 4;
+	br.x = bot.x + height / 4;
+	bl.y = br.y = bot.y;
 
-	flVec3 NDC;
-	NDC.x = clipCoords.x / clipCoords.w;
-	NDC.y = clipCoords.y / clipCoords.w;
-	NDC.z = clipCoords.z / clipCoords.w;
-
-	screen.x = (windowWidth / 2 * NDC.x) + (NDC.x + windowWidth / 2);
-	screen.y = -(windowHeight / 2 * NDC.y) + (NDC.y + windowHeight / 2);
-	return true;
+	Game::D3D::DrawLine(tl, tr, thickness, color, pDevice);
+	Game::D3D::DrawLine(bl, br, thickness, color, pDevice);
+	Game::D3D::DrawLine(tl, bl, thickness, color, pDevice);
+	Game::D3D::DrawLine(tr, br, thickness, color, pDevice);
 }
 
 void EntityListLoop()
@@ -232,7 +234,8 @@ void EntityListLoop()
 
 //Other Functions
 
-flVec3 GetBonePos(Player* ent, int bone) {
+flVec3 GetBonePos(Player* ent, int bone)
+{
 	uintptr_t bonePtr = ent->BoneMatrix;
 	flVec3 bonePos;
 	bonePos.x = *(float*)(bonePtr + 0x30 * bone + 0x0C);

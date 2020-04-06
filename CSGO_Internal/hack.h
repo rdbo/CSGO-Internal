@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "game.h"
 
+#define ABS(x) ((x < 0) ? (-x) : (x))
 #define STR_MERGE_IMPL(a, b) a##b
 #define STR_MERGE(a, b) STR_MERGE_IMPL(a, b)
 #define MAKE_PAD(size) STR_MERGE(_pad, __COUNTER__)[size]
@@ -16,11 +17,13 @@
 
 #define D3D_ENDSCENE_INDEX 42
 #define HOOK_ENDSCENE_LENGTH 7
+#define MAX_THICKNESS 10
 
 #define STATE_INGAME 6
 #define MAX_PLAYERS 32
 #define LOOP_DIST 0x10
 #define GLOW_CONSTANT 0x38
+#define BONE_HEAD 8
 
 typedef long(__stdcall* EndScene)(LPDIRECT3DDEVICE9);
 typedef LRESULT(CALLBACK* WNDPROC)(HWND, UINT, WPARAM, LPARAM);
@@ -92,11 +95,17 @@ extern bool esp_snapline;
 extern int esp_snapline_thickness;
 extern int esp_snapline_color_enemy[4];
 extern int esp_snapline_color_team[4];
+extern bool esp_box;
+extern int esp_box_thickness;
+extern int esp_box_color_enemy[4];
+extern int esp_box_color_team[4];
 extern float GlowEnemyColor[4];
 extern float GlowTeamColor[4];
 
 //EndScene Dependent Functions
-void ESP_SnapLine(Player* ent, Window wnd, LPDIRECT3DDEVICE9 pDevice);
+void ESP_SnapLine(Player* ent, iVec2 EnemyPos2D, Window wnd, LPDIRECT3DDEVICE9 pDevice);
+flVec3 GetBonePos(Player* ent, int bone);
+void ESP_Box(Player* ent, iVec2 EnemyPos2D, iVec2 EnemyHeadPos2D, LPDIRECT3DDEVICE9 pDevice);
 
 //Game
 
@@ -104,12 +113,14 @@ namespace Game
 {
 	namespace D3D
 	{
+		extern ID3DXLine* dxLine;
 		extern EndScene oEndScene;
 		extern void* vtable[119];
 		bool WorldToScreen(flVec3 pos, iVec2& screen, float viewMatrix[4][4], int windowWidth, int windowHeight);
 		long __stdcall hkEndScene(LPDIRECT3DDEVICE9 pDevice);
 		bool GetDevice(void** pTable, size_t Size);
 		void DrawLine(iVec2 src, iVec2 dst, int thickness, D3DCOLOR color, LPDIRECT3DDEVICE9 pDevice);
+		void DrawRect(int x, int y, int w, int h, int thickness, D3DCOLOR color, LPDIRECT3DDEVICE9 pDevice);
 	}
 	extern HWND window;
 	extern Window wrect;
