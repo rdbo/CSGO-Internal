@@ -198,6 +198,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="colors.h" />
+    <ClInclude Include="fonts\roboto_regular.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="hack.h" />
     <ClInclude Include="imgui\imconfig.h" />

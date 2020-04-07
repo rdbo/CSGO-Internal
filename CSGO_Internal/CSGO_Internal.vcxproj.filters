@@ -19,6 +19,9 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{4454c0df-66e8-44a8-94af-2eff4a83e0be}</UniqueIdentifier>
     </Filter>
+    <Filter Include="fonts">
+      <UniqueIdentifier>{934d4612-2a13-4a87-acf3-5bf9942d1716}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -91,6 +94,12 @@
     </ClInclude>
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="fonts\roboto_regular.h">
+      <Filter>fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="colors.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

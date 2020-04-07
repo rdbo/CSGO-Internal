@@ -6,5 +6,6 @@
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx9.h"
 #include "mem/mem.h"
+#include "fonts/roboto_regular.h"
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")

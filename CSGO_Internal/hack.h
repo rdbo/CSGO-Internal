@@ -18,6 +18,9 @@
 #define D3D_ENDSCENE_INDEX 42
 #define HOOK_ENDSCENE_LENGTH 7
 #define MAX_THICKNESS 10
+#define FONT_SIZE 18
+#define IMGUI_WINDOW_W 280
+#define IMGUI_WINDOW_H 180
 
 #define STATE_INGAME 6
 #define MAX_PLAYERS 32
@@ -78,6 +81,7 @@ public:
 		DEFINE_MEMBER_N(DWORD, Team, netvars::m_iTeamNum);
 		DEFINE_MEMBER_N(DWORD, Health, netvars::m_iHealth);
 		DEFINE_MEMBER_N(DWORD, Flags, netvars::m_fFlags);
+		DEFINE_MEMBER_N(flVec3, Velocity, netvars::m_vecVelocity);
 		DEFINE_MEMBER_N(flVec3, Position, netvars::m_vecOrigin);
 		DEFINE_MEMBER_N(bool, Spotted, netvars::m_bSpotted);
 		DEFINE_MEMBER_N(DWORD, BoneMatrix, netvars::m_dwBoneMatrix);
@@ -118,6 +122,7 @@ namespace Game
 	{
 		extern ID3DXLine* dxLine;
 		extern EndScene oEndScene;
+		extern ImFont* roboto;
 		extern void* vtable[119];
 		bool WorldToScreen(flVec3 pos, iVec2& screen, float viewMatrix[4][4], int windowWidth, int windowHeight);
 		long __stdcall hkEndScene(LPDIRECT3DDEVICE9 pDevice);

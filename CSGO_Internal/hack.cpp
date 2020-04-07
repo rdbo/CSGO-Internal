@@ -24,6 +24,7 @@ namespace Game
 	{
 		ID3DXLine* dxLine;
 		EndScene oEndScene;
+		ImFont* roboto;
 		void* vtable[119];
 	}
 	HWND window;
@@ -124,7 +125,7 @@ void Game::HackShutdown()
 
 void Bunnyhop()
 {
-	if (bhop && Game::LocalPlayer->Flags & (1 << 0) && GetAsyncKeyState(KEY_BHOP))
+	if (bhop && (Game::LocalPlayer->Velocity.x < -1 || Game::LocalPlayer->Velocity.x > 1 || Game::LocalPlayer->Velocity.y < -1 || Game::LocalPlayer->Velocity.y > 1) && Game::LocalPlayer->Flags & (1 << 0) && GetAsyncKeyState(KEY_BHOP))
 	{
 		*Game::ForceJump = 6;
 	}
@@ -294,9 +295,8 @@ LRESULT CALLBACK Game::hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		}
 	}
 
-	if (bShowMenu)
+	if (bShowMenu && ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
 	{
-		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 		return true;
 	}
 	return CallWindowProc(oWndProc, hWnd, uMsg, wParam, lParam);
