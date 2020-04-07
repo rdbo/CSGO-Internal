@@ -34,7 +34,7 @@ void DrawMenu()
 
 	if (ImGui::BeginTabItem("ESP Snaplines"))
 	{
-		ImGui::SliderInt("Thickness", &esp_snapline_thickness, 0, MAX_THICKNESS);
+		//ImGui::SliderInt("Thickness", &esp_snapline_thickness, 0, MAX_THICKNESS); // <- Not working
 		ImGui::SliderInt("Team R", &esp_snapline_color_team[0], 0, 255);
 		ImGui::SliderInt("Team G", &esp_snapline_color_team[1], 0, 255);
 		ImGui::SliderInt("Team B", &esp_snapline_color_team[2], 0, 255);
@@ -49,7 +49,7 @@ void DrawMenu()
 
 	if (ImGui::BeginTabItem("ESP Box"))
 	{
-		ImGui::SliderInt("Thickness", &esp_box_thickness, 0, MAX_THICKNESS);
+		//ImGui::SliderInt("Thickness", &esp_box_thickness, 0, MAX_THICKNESS); // <- Not working
 		ImGui::SliderInt("Team R", &esp_box_color_team[0], 0, 255);
 		ImGui::SliderInt("Team G", &esp_box_color_team[1], 0, 255);
 		ImGui::SliderInt("Team B", &esp_box_color_team[2], 0, 255);
