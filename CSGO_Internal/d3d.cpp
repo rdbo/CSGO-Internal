@@ -12,6 +12,7 @@ void DrawMenu()
 	{
 		ImGui::Checkbox("Bunnyhop", &bhop);
 		ImGui::Checkbox("Radar Hack", &radar_hack);
+		ImGui::Checkbox("Recoil Control System", &rcs);
 		ImGui::Checkbox("Glow Hack", &glow_hack);
 		ImGui::Checkbox("ESP Snaplines", &esp_snapline);
 		ImGui::Checkbox("ESP Box", &esp_box);

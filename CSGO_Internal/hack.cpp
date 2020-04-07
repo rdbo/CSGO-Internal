@@ -5,6 +5,7 @@ using namespace hazedumper;
 bool bhop;
 bool radar_hack;
 bool glow_hack;
+bool rcs;
 bool esp_snapline;
 int esp_snapline_thickness = 2;
 int esp_snapline_color_enemy[4] = { 255, 125, 0, 255 };
@@ -38,6 +39,8 @@ namespace Game
 	mem_t GlowObjMg;
 	mem_t ClientState;
 	int* ClientState_State;
+	flVec3* ViewAngles;
+	flVec3 oPunch = { 0, 0, 0};
 	DWORD* ForceJump;
 	Player* EntityList[MAX_PLAYERS];
 	bool run;
@@ -49,6 +52,8 @@ namespace Game
 //Functions
 
 void Bunnyhop();
+flVec3 Normalize(flVec3 Angles);
+void RecoilControlSystem();
 void RadarHack(Player* ent);
 void GlowHack(Player* ent);
 void EntityListLoop();
@@ -86,9 +91,11 @@ DWORD WINAPI Game::HackInit(LPVOID lpReserved)
 			EntityListAddr = (mem_t)(client + signatures::dwEntityList);
 			if (LocalPlayerAddr)
 			{
+				ViewAngles = (flVec3*)(ClientState + signatures::dwClientState_ViewAngles);
 				vMatrix = *(ViewMatrix*)(client + signatures::dwViewMatrix);
 				GlowObjMg = *(mem_t*)(client + signatures::dwGlowObjectManager);
 				Bunnyhop();
+				RecoilControlSystem();
 				EntityListLoop();
 			}
 		}
@@ -120,6 +127,39 @@ void Bunnyhop()
 	if (bhop && Game::LocalPlayer->Flags & (1 << 0) && GetAsyncKeyState(KEY_BHOP))
 	{
 		*Game::ForceJump = 6;
+	}
+}
+
+flVec3 Normalize(flVec3 Angles)
+{
+	while (Angles.y < -180) { Angles.y += 360; }
+	while (Angles.y > 180) { Angles.y -= 360; }
+	if (Angles.x > 89) { Angles.x = 89; }
+	if (Angles.x < -89) { Angles.x = -89; }
+	return Angles;
+}
+
+void RecoilControlSystem()
+{
+	if (rcs)
+	{
+		flVec3 PunchAngles;
+		PunchAngles.x = Game::LocalPlayer->AimPunchAngle.x * RCS_CONSTANT;
+		PunchAngles.y = Game::LocalPlayer->AimPunchAngle.y * RCS_CONSTANT;
+		PunchAngles.z = Game::LocalPlayer->AimPunchAngle.z * RCS_CONSTANT;
+
+		if (Game::LocalPlayer->ShotsFired > 0)
+		{
+
+			flVec3 NewAngles;
+			NewAngles.x = (Game::ViewAngles->x) + Game::oPunch.x - PunchAngles.x;
+			NewAngles.y = (Game::ViewAngles->y) + Game::oPunch.y - PunchAngles.y;
+			NewAngles.z = (Game::ViewAngles->z) + Game::oPunch.z - PunchAngles.z;
+
+			*Game::ViewAngles = Normalize(NewAngles);
+		}
+
+		Game::oPunch = PunchAngles;
 	}
 }
 

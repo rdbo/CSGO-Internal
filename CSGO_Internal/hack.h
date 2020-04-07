@@ -23,6 +23,7 @@
 #define MAX_PLAYERS 32
 #define LOOP_DIST 0x10
 #define GLOW_CONSTANT 0x38
+#define RCS_CONSTANT 2
 #define BONE_HEAD 8
 
 typedef long(__stdcall* EndScene)(LPDIRECT3DDEVICE9);
@@ -81,6 +82,7 @@ public:
 		DEFINE_MEMBER_N(bool, Spotted, netvars::m_bSpotted);
 		DEFINE_MEMBER_N(DWORD, BoneMatrix, netvars::m_dwBoneMatrix);
 		DEFINE_MEMBER_N(flVec3, AimPunchAngle, netvars::m_aimPunchAngle);
+		DEFINE_MEMBER_N(DWORD, ShotsFired, netvars::m_iShotsFired);
 		DEFINE_MEMBER_N(DWORD, GlowIndex, netvars::m_iGlowIndex);
 		DEFINE_MEMBER_N(DWORD, Armor, netvars::m_ArmorValue);
 	};
@@ -91,6 +93,7 @@ public:
 extern bool bhop;
 extern bool radar_hack;
 extern bool glow_hack;
+extern bool rcs;
 extern bool esp_snapline;
 extern int esp_snapline_thickness;
 extern int esp_snapline_color_enemy[4];
