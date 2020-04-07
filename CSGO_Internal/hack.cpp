@@ -3,6 +3,7 @@
 using namespace hazedumper;
 
 bool bhop;
+bool no_flash;
 bool radar_hack;
 bool glow_hack;
 bool rcs;
@@ -42,7 +43,7 @@ namespace Game
 	mem_t ClientState;
 	int* ClientState_State;
 	flVec3* ViewAngles;
-	flVec3 oPunch = { 0, 0, 0};
+	flVec3 oPunch = { 0, 0, 0 };
 	DWORD* ForceJump;
 	Player* EntityList[MAX_PLAYERS];
 	bool run;
@@ -54,6 +55,7 @@ namespace Game
 //Functions
 
 void Bunnyhop();
+void NoFlash();
 flVec3 Normalize(flVec3 Angles);
 void RecoilControlSystem();
 void RadarHack(Player* ent);
@@ -97,6 +99,7 @@ DWORD WINAPI Game::HackInit(LPVOID lpReserved)
 				vMatrix = *(ViewMatrix*)(client + signatures::dwViewMatrix);
 				GlowObjMg = *(mem_t*)(client + signatures::dwGlowObjectManager);
 				Bunnyhop();
+				NoFlash();
 				RecoilControlSystem();
 				EntityListLoop();
 			}
@@ -126,9 +129,17 @@ void Game::HackShutdown()
 
 void Bunnyhop()
 {
-	if (bhop && Game::key_hook[KEY_BHOP] == WM_KEYDOWN && (Game::LocalPlayer->Velocity.x < -1 || Game::LocalPlayer->Velocity.x > 1 || Game::LocalPlayer->Velocity.y < -1 || Game::LocalPlayer->Velocity.y > 1) && Game::LocalPlayer->Flags & (1 << 0))
+	if (bhop && Game::key_hook[KEY_BHOP] == WM_KEYDOWN && (Game::LocalPlayer->Velocity.x < -1 || Game::LocalPlayer->Velocity.x > 1 || Game::LocalPlayer->Velocity.y < -1 || Game::LocalPlayer->Velocity.y > 1) && Game::LocalPlayer->Flags& (1 << 0))
 	{
 		*Game::ForceJump = 6;
+	}
+}
+
+void NoFlash()
+{
+	if (no_flash && Game::LocalPlayer->FlashDuration > 1)
+	{
+		Game::LocalPlayer->FlashDuration = 0;
 	}
 }
 

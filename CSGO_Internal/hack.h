@@ -86,6 +86,7 @@ public:
 		DEFINE_MEMBER_N(bool, Spotted, netvars::m_bSpotted);
 		DEFINE_MEMBER_N(DWORD, BoneMatrix, netvars::m_dwBoneMatrix);
 		DEFINE_MEMBER_N(flVec3, AimPunchAngle, netvars::m_aimPunchAngle);
+		DEFINE_MEMBER_N(float, FlashDuration, netvars::m_flFlashDuration);
 		DEFINE_MEMBER_N(DWORD, ShotsFired, netvars::m_iShotsFired);
 		DEFINE_MEMBER_N(DWORD, GlowIndex, netvars::m_iGlowIndex);
 		DEFINE_MEMBER_N(DWORD, Armor, netvars::m_ArmorValue);
@@ -95,6 +96,7 @@ public:
 //Variables
 
 extern bool bhop;
+extern bool no_flash;
 extern bool radar_hack;
 extern bool glow_hack;
 extern bool rcs;

@@ -43,7 +43,7 @@ void DrawMenu()
 		ImGui::Text("ESP Snaplines");
 		ImGui::Checkbox("Enable ESP Snaplines", &esp_snapline);
 
-		if(ImGui::Button("Set Team Line Color"))
+		if (ImGui::Button("Set Team Line Color"))
 		{
 			menu_snapline_team = !menu_snapline_team;
 		}
@@ -75,6 +75,7 @@ void DrawMenu()
 	if (ImGui::BeginTabItem("Misc"))
 	{
 		ImGui::Checkbox("Bunnyhop", &bhop);
+		ImGui::Checkbox("No Flash", &no_flash);
 		ImGui::Checkbox("Recoil Control System", &rcs);
 		ImGui::EndTabItem();
 	}
