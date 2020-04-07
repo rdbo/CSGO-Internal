@@ -32,6 +32,7 @@ namespace Game
 	mem_t csgo;
 	mem_t client;
 	mem_t engine;
+	UINT key_hook[0xFE];
 	WNDPROC oWndProc;
 	mem_t LocalPlayerAddr;
 	Player* LocalPlayer;
@@ -125,7 +126,7 @@ void Game::HackShutdown()
 
 void Bunnyhop()
 {
-	if (bhop && (Game::LocalPlayer->Velocity.x < -1 || Game::LocalPlayer->Velocity.x > 1 || Game::LocalPlayer->Velocity.y < -1 || Game::LocalPlayer->Velocity.y > 1) && Game::LocalPlayer->Flags & (1 << 0) && GetAsyncKeyState(KEY_BHOP))
+	if (bhop && Game::key_hook[KEY_BHOP] == WM_KEYDOWN && (Game::LocalPlayer->Velocity.x < -1 || Game::LocalPlayer->Velocity.x > 1 || Game::LocalPlayer->Velocity.y < -1 || Game::LocalPlayer->Velocity.y > 1) && Game::LocalPlayer->Flags & (1 << 0))
 	{
 		*Game::ForceJump = 6;
 	}
@@ -287,6 +288,9 @@ flVec3 GetBonePos(Player* ent, int bone)
 
 LRESULT CALLBACK Game::hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if (uMsg == WM_KEYDOWN || uMsg == WM_KEYUP)
+		key_hook[wParam] = uMsg;
+
 	if (uMsg == WM_KEYDOWN)
 	{
 		if (wParam == KEY_MENU)

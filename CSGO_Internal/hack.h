@@ -149,6 +149,7 @@ namespace Game
 	extern bool bInitHooks;
 	extern bool bInitImgui;
 	extern bool bShowMenu;
+	extern UINT key_hook[0xFE];
 	DWORD WINAPI HackInit(LPVOID lpReserved);
 	void HackShutdown();
 	LRESULT CALLBACK hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
