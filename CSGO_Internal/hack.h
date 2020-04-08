@@ -153,6 +153,7 @@ namespace Game
 	extern bool bShowMenu;
 	extern UINT key_hook[0xFE];
 	DWORD WINAPI HackInit(LPVOID lpReserved);
+	void Hack(LPDIRECT3DDEVICE9 pDevice);
 	void HackShutdown();
 	LRESULT CALLBACK hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

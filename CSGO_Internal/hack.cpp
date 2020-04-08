@@ -60,7 +60,7 @@ flVec3 Normalize(flVec3 Angles);
 void RecoilControlSystem();
 void RadarHack(Player* ent);
 void GlowHack(Player* ent);
-void EntityListLoop();
+void EntityListLoop(LPDIRECT3DDEVICE9 pDevice);
 void DrawEspBox2D(iVec2 top, iVec2 bot, int thickness, D3DCOLOR color, LPDIRECT3DDEVICE9 pDevice);
 flVec3 GetBonePos(Player* ent, int bone);
 
@@ -72,19 +72,22 @@ DWORD WINAPI Game::HackInit(LPVOID lpReserved)
 	client = Memory::In::GetModuleAddress(CLIENT_MODULE);
 	engine = Memory::In::GetModuleAddress(ENGINE_MODULE);
 
-	if (csgo == 0 || client == 0 || engine == 0) return FALSE; //Check modules
+	if (csgo == 0 || client == 0 || engine == 0) { run = false; return FALSE; }; //Check modules
 
 	ForceJump = (DWORD*)(client + signatures::dwForceJump);
 
 	//Hooks
-	if (!D3D::GetDevice(D3D::vtable, sizeof(D3D::vtable))) return FALSE;
+	if (!D3D::GetDevice(D3D::vtable, sizeof(D3D::vtable))) { run = false; return FALSE; };
 	D3D::oEndScene = (EndScene)Memory::In::Hook::TrampolineHook((byte_t*)D3D::vtable[D3D_ENDSCENE_INDEX], (byte_t*)D3D::hkEndScene, HOOK_ENDSCENE_LENGTH);
 	oWndProc = (WNDPROC)SetWindowLongPtr(Game::window, GWL_WNDPROC, (LONG_PTR)hkWndProc);
 	bInitHooks = true;
+}
 
+void Game::Hack(LPDIRECT3DDEVICE9 pDevice)
+{
 	//Main Loop
 
-	while (run)
+	if (run)
 	{
 		ClientState = *(mem_t*)(engine + signatures::dwClientState);
 		ClientState_State = (int*)(ClientState + signatures::dwClientState_State);
@@ -101,12 +104,10 @@ DWORD WINAPI Game::HackInit(LPVOID lpReserved)
 				Bunnyhop();
 				NoFlash();
 				RecoilControlSystem();
-				EntityListLoop();
+				EntityListLoop(pDevice);
 			}
 		}
 	}
-
-	return TRUE;
 }
 
 void Game::HackShutdown()
@@ -266,7 +267,7 @@ void DrawEspBox2D(iVec2 top, iVec2 bot, int thickness, D3DCOLOR color, LPDIRECT3
 	Game::D3D::DrawLine(tr, br, thickness, color, pDevice);
 }
 
-void EntityListLoop()
+void EntityListLoop(LPDIRECT3DDEVICE9 pDevice)
 {
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
@@ -276,6 +277,13 @@ void EntityListLoop()
 			Game::EntityList[i] = (Player*)ent;
 			RadarHack(Game::EntityList[i]);
 			GlowHack(Game::EntityList[i]);
+			iVec2 EnemyPos2D, EnemyHeadPos2D;
+			flVec3 EnemyHeadPos3D = GetBonePos(Game::EntityList[i], BONE_HEAD);
+			if (Game::D3D::WorldToScreen(Game::EntityList[i]->Position, EnemyPos2D, Game::vMatrix.Matrix, Game::wrect.GetWidth(), Game::wrect.GetHeight()) && Game::D3D::WorldToScreen(EnemyHeadPos3D, EnemyHeadPos2D, Game::vMatrix.Matrix, Game::wrect.GetWidth(), Game::wrect.GetHeight()))
+			{
+				ESP_SnapLine(Game::EntityList[i], EnemyPos2D, Game::wrect, pDevice);
+				ESP_Box(Game::EntityList[i], EnemyPos2D, EnemyHeadPos2D, pDevice);
+			}
 		}
 
 		else

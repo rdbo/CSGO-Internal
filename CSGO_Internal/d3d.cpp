@@ -165,23 +165,7 @@ long __stdcall Game::D3D::hkEndScene(LPDIRECT3DDEVICE9 pDevice)
 		DrawMenu();
 	}
 
-	if (esp_snapline || esp_box && LocalPlayerAddr)
-	{
-		for (int i = 0; i < MAX_PLAYERS; i++)
-		{
-			if (EntityList[i] != NULL && EntityList[i] != LocalPlayer)
-			{
-
-				iVec2 EnemyPos2D, EnemyHeadPos2D;
-				flVec3 EnemyHeadPos3D = GetBonePos(EntityList[i], BONE_HEAD);
-				if (WorldToScreen(EntityList[i]->Position, EnemyPos2D, Game::vMatrix.Matrix, wrect.GetWidth(), wrect.GetHeight()) && WorldToScreen(EnemyHeadPos3D, EnemyHeadPos2D, Game::vMatrix.Matrix, wrect.GetWidth(), wrect.GetHeight()))
-				{
-					ESP_SnapLine(EntityList[i], EnemyPos2D, wrect, pDevice);
-					ESP_Box(EntityList[i], EnemyPos2D, EnemyHeadPos2D, pDevice);
-				}
-			}
-		}
-	}
+	Hack(pDevice);
 
 	ImGui::EndFrame();
 	ImGui::Render();
